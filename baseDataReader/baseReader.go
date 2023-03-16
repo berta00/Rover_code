@@ -4,7 +4,7 @@ import (
     "fmt"
 )
 
-dbDataConnString := "aa";
+dbDataConnString := "";
 
 func main(){
     fmt.Println("base reader");
