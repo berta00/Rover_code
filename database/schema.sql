@@ -1,18 +1,20 @@
-CREATE DATABASE probeBaloonData;
-CREATE DATABASE probeBaloonWeb;
+CREATE DATABASE ProbeBaloonData;
+CREATE DATABASE ProbeBaloonWeb;
 
 CREATE USER 'baseReader'@'%'   IDENTIFIED BY 'baseReader123';
 CREATE USER 'webInterface'@'%' IDENTIFIED BY 'webInterface123';
 CREATE USER 'EMMmantainer'@'%' IDENTIFIED BY 'EMMmantainer123';
 
-GRANT INSERT, SELECT                 ON probeBaloonData.* TO 'baseReader'@'%';
-GRANT INSERT, SELECT, UPDATE, DELETE ON probeBaloonData.* TO 'webInterface'@'%';
-GRANT ALL                            ON probeBaloonData.* TO 'EMMmantainer'@'%' WITH GRANT OPTION;
-GRANT ALL                            ON probeBaloonWeb.*  TO 'EMMmantainer'@'%'  WITH GRANT OPTION;
+GRANT INSERT, SELECT                 ON ProbeBaloonData.* TO 'baseReader'@'%';
+GRANT INSERT, SELECT, UPDATE, DELETE ON ProbeBaloonData.* TO 'webInterface'@'%';
+GRANT ALL                            ON ProbeBaloonData.* TO 'EMMmantainer'@'%' WITH GRANT OPTION;
+GRANT ALL                            ON ProbeBaloonWeb.*  TO 'EMMmantainer'@'%'  WITH GRANT OPTION;
 
-USE probeBaloonData;
+FLUSH PRIVILEGES;
 
-CREATE TABLE baloonSensorDataOut (
+USE ProbeBaloonData;
+
+CREATE TABLE BaloonSensorDataOut (
     id              int          auto_increment,
     dataTime        timestamp    default        current_timestamp,
     sensorFailures  varchar(255),
@@ -22,9 +24,19 @@ CREATE TABLE baloonSensorDataOut (
     accelerometer   varchar(255),
     gps             varchar(255),
     barometer       float,
+    PRIMARY KEY (id)
+);
+CREATE TABLE BaloonActuatorDataOut (
+    id              int          auto_increment,
+    dataTime        timestamp    default        current_timestamp,
+    warning         int,
+    emergency       int,
+    gasValveStatus  int,
+    pumpStatus      int,
+    parachuteStatus int,
     PRIMARY KEY(id)
 );
-CREATE TABLE baloonActuatorDataOut (
+CREATE TABLE BaloonActuatorDataIn (
     id              int          auto_increment,
     dataTime        timestamp    default        current_timestamp,
     warning         int,
@@ -32,25 +44,15 @@ CREATE TABLE baloonActuatorDataOut (
     gasValveStatus  int,
     pumpStatus      int,
     parachuteStatus int,
-    PRIMARY KEY(id)
-)
-CREATE TABLE baloonActuatorDataIn (
-    id              int          auto_increment,
-    dataTime        timestamp    default        current_timestamp,
-    warning         int,
-    emergency       int,
-    gasValveStatus  int,
-    pumpStatus      int,
-    parachuteStatus int,
-    PRIMARY KEY(id)
-)
+    PRIMARY KEY (id)
+);
 
-USE probeBaloonWeb;
+USE ProbeBaloonWeb;
 
-CREATE TABLE user (
+CREATE TABLE User (
     id              int          auto_increment,
     name            varchar(255) not null,
     email           varchar(255) not null,
     password        varchar(255) not null,
-    PRIMARY KEY(id)
-)
+    PRIMARY KEY (id)
+);
