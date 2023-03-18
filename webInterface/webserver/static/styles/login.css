@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+}
+body {
+    background: #373737;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.main {
+    background: #151515;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    width: auto;
+    padding: 50px;
+}
+.main a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 40px;
+    font-weight: 400;
+    height: auto;
+    width: auto;
+}
+.main div {
+    height: auto;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.main div a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    height: auto;
+    width: auto;
+    margin-bottom: 0px;
+}
+.main div input {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    height: auto;
+    width: auto;
+    width: 300px;
+    height: 16;
+    padding: 3px;
+    background: #373737;
+    border: 0 solid;
+}
+.main .submit {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    height: auto;
+    width: auto;
+    padding: 3px;
+    background: #373737;
+    color: white;
+    border: 0 solid;
+    margin-top: 20px;
+    padding: 6px;
+}
+.main div input:selected {
+    border: 2px solid black;
+}

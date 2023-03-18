@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+}
+*::selection {
+    padding: 0;
+    margin: 0;
+}
+body {
+    background: rgb(53, 54, 58);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.upperMenu {
+    padding: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+}
+.upperMenu a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    width: calc(100% - 14px * 2);
+    font-size: 15px;
+    font-weight: 300;
+    position: absolute;
+    transition: 0.2s;
+}
+.upperMenu .left {
+    text-align: left;
+}
+.upperMenu .central {
+    text-align: center;
+}
+.upperMenu .right {
+    display: flex;
+    justify-content: flex-end;
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    width: calc(100% - 14px * 2);
+    font-size: 15px;
+    font-weight: 300;
+    position: absolute;
+    transition: 0.2s;
+}
+.upperMenu .right a {
+    width: auto;
+    margin-right: 19px;
+}
+.upperMenu .right div {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    transform: translateY(4px);
+}
+
+.leftMenu {
+    height: 100vh;
+    width: 300px;
+    background: rgb(32, 33, 36);
+    position: absolute;
+    top: 0;
+    transition: 0.6s;
+    z-index: 3;
+}
+.leftMenu .arrow {
+    height: 75px;
+    width: 38px;
+    background: rgb(32, 33, 36);
+    border-top-right-radius: 37px;
+    border-bottom-right-radius: 37px;
+    position: absolute;
+    top: calc(50% - 75px / 2);
+    left: calc(300px - 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+.leftMenu .arrow img {
+    height: 18px;
+    width: 18px;
+    transition: 0.6s;
+}
+.leftMenu .title {
+    padding: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+}
+.leftMenu .title a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 15px;
+    font-weight: 300;
+    width: calc(100% - 14px * 2);
+    position: absolute;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.rightMenu {
+    height: 100vh;
+    width: 300px;
+    background: rgb(32, 33, 36);
+    position: absolute;
+    top: 0;
+    transition: 0.6s;
+    z-index: 3;
+}
+.rightMenu .arrow {
+    height: 74px;
+    width: 38px;
+    background: rgb(32, 33, 36);
+    border-top-left-radius: 37px;
+    border-bottom-left-radius: 37px;
+    position: absolute;
+    top: calc(50% - 74px / 2);
+    right: calc(300px - 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+.rightMenu .arrow img {
+    height: 18px;
+    width: 18px;
+    transition: 0.6s;
+}
+.rightMenu .title {
+    padding: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+}
+.rightMenu .title a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 15px;
+    font-weight: 300;
+    width: calc(100% - 14px * 2);
+    position: absolute;
+    transition: 0.2s;
+    text-align: center;
+}
+.rightMenu .logs {
+    height: calc(100vh - 28px);
+    width: 100%;
+    padding-top: 35px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: scroll;
+}
+.rightMenu .logs a {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 300;
+    width: 100%;
+    height: auto;
+}
+
+.main {
+    height: calc(100vh - 28px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.main img {
+    height: 75%;
+    transform: translateY(10%);
+    transition: 0.6s;
+}

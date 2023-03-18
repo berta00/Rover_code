@@ -7,6 +7,7 @@ CREATE USER 'EMMmantainer'@'%' IDENTIFIED BY 'EMMmantainer123';
 
 GRANT INSERT, SELECT                 ON ProbeBaloonData.* TO 'baseReader'@'%';
 GRANT INSERT, SELECT, UPDATE, DELETE ON ProbeBaloonData.* TO 'webInterface'@'%';
+GRANT INSERT, SELECT, UPDATE, DELETE ON ProbeBaloonWeb.*  TO 'webInterface'@'%';
 GRANT ALL                            ON ProbeBaloonData.* TO 'EMMmantainer'@'%' WITH GRANT OPTION;
 GRANT ALL                            ON ProbeBaloonWeb.*  TO 'EMMmantainer'@'%'  WITH GRANT OPTION;
 
@@ -29,6 +30,7 @@ CREATE TABLE BaloonSensorDataOut (
 CREATE TABLE BaloonActuatorDataOut (
     id              int          auto_increment,
     dataTime        timestamp    default        current_timestamp,
+    status          int,
     warning         int,
     emergency       int,
     gasValveStatus  int,
@@ -39,6 +41,7 @@ CREATE TABLE BaloonActuatorDataOut (
 CREATE TABLE BaloonActuatorDataIn (
     id              int          auto_increment,
     dataTime        timestamp    default        current_timestamp,
+    status          int,
     warning         int,
     emergency       int,
     gasValveStatus  int,
@@ -52,7 +55,11 @@ USE ProbeBaloonWeb;
 CREATE TABLE User (
     id              int          auto_increment,
     name            varchar(255) not null,
-    email           varchar(255) not null,
+    email           varchar(255) not null       unique,
     password        varchar(255) not null,
     PRIMARY KEY (id)
 );
+
+
+# insert admin user
+INSERT INTO User (name, email, password) VALUES ("admin", "bertagnollimarco999@gmail.com", "admin123");

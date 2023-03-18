@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="static/styles/dashboard.css">
+    </head>
+    <body>
+        <div class="upperMenu">
+            <a class="left">Utente: {{.Name}}</a>
+            <a class="central">time</a>
+            <div class="right">
+                <a>Connection state: </a>
+                <div id="connectionStateOut"></div>
+            </div>
+        </div>
+        <div class="leftMenu" style="left: -300px;">
+            <div class="arrow" onclick="sideMenu('left')">
+                <img src="static/media/svg/arrow.svg" style="transform: rotate(90deg);"></img>
+            </div>
+            <div class="title">
+                <a>Menu</a>
+            </div>
+        </div>
+        <div class="rightMenu" style="right: -300px;">
+            <div class="arrow" onclick="sideMenu('right')">
+                <img src="static/media/svg/arrow.svg" style="transform: rotate(-90deg);"></img>
+            </div>
+            <div class="title">
+                <a>Logs</a>
+            </div>
+            <div class="logs">
+                <!-- here logs generated from js -->
+            </div>
+        </div>
+        <div class="main">
+            <img class="img1" src="static/media/render3d/renderFronte.png"></img>
+        </div>
+        <script src="static/scripts/dashboard.js"></script>
+    </body>
+</html>

@@ -35,8 +35,11 @@ func main(){
     // db connections
     dbDataConnString := dbUsername + ":" + dbPassword + "@tcp(" + dbIp + ":" + dbPort + ")/" + dbNameData
 
-    dbDataConn := sql.Open("mysql", dbDataConnString)
+    dbDataConn, err := sql.Open("mysql", dbDataConnString)
+    if(err != nil){
+        fmt.Println("Error: Cant connect to data database\n - " + err.Error())
+    }
     defer dbDataConn.Close();
 
-    
+
 }
