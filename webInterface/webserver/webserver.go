@@ -28,7 +28,7 @@ var dbTableSensorOut   = os.Getenv("MYSQL_TB_SEN_OUT")*/
 // global variables
 var domainName       = "http://127.0.0.1"
 var dbDataConnString = dbUsername + ":" + dbPassword + "@tcp(" + dbIp + ":" + dbPort + ")/" + dbNameData
-var dbWebConnString  = dbUsername + ":" + dbPassword + "@tcp(" + dbIp + ":" + dbPort + ")/" + dbNameWeb
+var dbWebConnString = dbUsername + ":" + dbPassword + "@tcp(" + dbIp + ":" + dbPort + ")/" + dbNameWeb
 
 // websocket
 var upgrader = websocket.Upgrader {

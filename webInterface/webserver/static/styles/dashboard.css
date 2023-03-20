@@ -192,8 +192,158 @@ body {
     align-items: center;
     justify-content: center;
 }
-.main img {
+.main .img1Div,
+.main .img2Div,
+.main .img3Div {
     height: 75%;
-    transform: translateY(10%);
+    width: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: 0.6s;
+    transform: translateY(5%);
+}
+.main .img3Div {
+    height: 78vh;
+    width: 80vw;
+    transform: translateY(-4%);
+}
+.main .img1Div img,
+.main .img2Div img {
+    height: 660px;
+}
+.main .img3Div .dataMain {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+.main .img3Div .dataMain .leftBlock,
+.main .img3Div .dataMain .rightBlock {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.main .img3Div .dataMain .leftBlock div {
+    height: calc(100% / 3);
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+.main .img3Div .dataMain .leftBlock div div {
+    height: calc(100% - 6px * 2 - 18px * 2);
+    width: calc(50% - 6px * 2 - 18px * 2);
+    border: solid 6px rgb(32, 33, 36);
+    display: flex;
+    flex-direction: column;
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 18px;
+}
+.main .img3Div .dataMain .rightBlock .gyroscope {
+    height: calc(100% / 3 - 6px * 2);
+    width: calc(100% - 6px * 2);
+    border: solid 6px rgb(32, 33, 36);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.main .img3Div .dataMain .rightBlock .gyroscope .roll,
+.main .img3Div .dataMain .rightBlock .gyroscope .pitch,
+.main .img3Div .dataMain .rightBlock .gyroscope .yaw {
+    width: calc(100%/3 - (6px * 2) / 3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.main .img3Div .dataMain .rightBlock .gyroscope .roll .title,
+.main .img3Div .dataMain .rightBlock .gyroscope .pitch .title,
+.main .img3Div .dataMain .rightBlock .gyroscope .yaw .title {
+    height: calc(16% - 5% * 2);
+    width: calc(100% - 5% * 2);
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 5%;
+}
+.main .img3Div .dataMain .rightBlock .gyroscope .roll .img,
+.main .img3Div .dataMain .rightBlock .gyroscope .pitch .img,
+.main .img3Div .dataMain .rightBlock .gyroscope .yaw .img {
+    height: calc(84% - 10px * 2);
+    width: calc(100% - 10px * 2);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}.main .img3Div .dataMain .rightBlock .gyroscope .roll .img img,
+.main .img3Div .dataMain .rightBlock .gyroscope .pitch .img img,
+.main .img3Div .dataMain .rightBlock .gyroscope .yaw .img img{
+    height: 88%;
+}
+.main .img3Div .dataMain .rightBlock .gyroscope .bar {
+    width: 6px;
+    height: 86%;
+    background-color: rgb(32, 33, 36);
+}
+.main .img3Div .dataMain .rightBlock .map {
+    height: calc((100% / 3) * 2 - 6px * 2 + 15px);
+    width: calc(100% - 6px * 2);
+    border: solid 6px rgb(32, 33, 36);
+}
+
+.changeDataImg {
+    width: 17%;
+    height: 35px;
+    position: absolute;
+    transform: translateX(-50%) translateY(-100%);
+    left: 50%;
+    top: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.changeDataImg .arrowLeft {
+    height: 100%;
+    width: 35px;
+    background: rgb(32, 33, 36);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.changeDataImg .arrowLeft img {
+    height: 50%;
+}
+.changeDataImg .currentDataImg {
+    height: 100%;
+    width: calc(100% - 35px * 2 - 2px * 2);
+    border-left: 2px solid rgb(53, 54, 58);
+    border-right: 2px solid rgb(53, 54, 58);
+    background: rgb(32, 33, 36);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.changeDataImg .currentDataImg a {
+    text-align: center;
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: 300;
+}
+.changeDataImg .arrowRight {
+    height: 100%;
+    width: 35px;
+    background: rgb(32, 33, 36);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.changeDataImg .arrowRight img {
+    height: 50%;
 }
