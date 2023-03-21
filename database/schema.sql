@@ -21,10 +21,10 @@ CREATE TABLE BaloonSensorDataOut (
     sensorFailures  varchar(255),
     temperature     float,
     humidity        float,
-    gyroscope       varchar(255),
     accelerometer   varchar(255),
-    gps             varchar(255),
     barometer       float,
+    gps             varchar(255),
+    gyroscope       varchar(255),
     PRIMARY KEY (id)
 );
 CREATE TABLE BaloonActuatorDataOut (
@@ -32,10 +32,11 @@ CREATE TABLE BaloonActuatorDataOut (
     dataTime        timestamp    default        current_timestamp,
     status          int,
     warning         int,
-    emergency       int,
-    gasValveStatus  int,
-    pumpStatus      int,
-    parachuteStatus int,
+    battery1        varchar(255),
+    battery2        varchar(255),
+    airPump         varchar(255),
+    parachuteServo  varchar(255),
+    gasValve        varchar(255),
     PRIMARY KEY(id)
 );
 CREATE TABLE BaloonActuatorDataIn (
@@ -63,3 +64,9 @@ CREATE TABLE User (
 
 # insert admin user
 INSERT INTO User (name, email, password) VALUES ("admin", "bertagnollimarco999@gmail.com", "admin123");
+
+
+USE ProbeBaloonData;
+
+# insert sensorDataOut
+INSERT INTO BaloonSensorDataOut (sensorFailures, temperature, humidity, accelerometer, barometer, gps, gyroscope) VALUES ("none", 25.6, 45.3, "0.71%0.28%9.43", 101325, "05%41%008%N%XX.XXXXX%W%31.54761%1129.0", "6.95%86.58%-1.20");

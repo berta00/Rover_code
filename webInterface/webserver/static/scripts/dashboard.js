@@ -120,7 +120,7 @@ function infoArrow(x, y, height, width, textHeight, textWidth, thikness, ball, r
     arrowDiv.style.position = "absolute";
     arrowDiv.style.top = ((parentOffsetY - imgOffsetY)/2 + y - height) + "px";
     arrowDiv.style.left = ((parentOffsetX - imgOffsetX)/2 + x) + "px";
-    arrowDiv.style.transition = "0.2s";
+    arrowDiv.style.transition = "0.25s";
 
     let arrowDivSubV = document.createElement("div");
     arrowDivSubV.style.background = color;
@@ -183,7 +183,7 @@ function infoArrow(x, y, height, width, textHeight, textWidth, thikness, ball, r
     arrowDiv.appendChild(arrowDivSubC);
     parent.appendChild(arrowDiv);
 
-    setInterval(()=>{arrowDiv.style.opacity = "1";}, 1000);
+    setInterval(()=>{arrowDiv.style.opacity = "1";}, 600);
 
     return arrowDivSubT;
 }
@@ -199,7 +199,11 @@ let arduinoTextElement = infoArrow(240, 450, 240, 300, 62, 150, 4, 12, true, tru
 
 // data page information display
 let batteryBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row1 .batteryBlock");
+let tempHumBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row1 .tempHumBlock");
 let airParBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row2 .airParBlock");
+let accBarBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row2 .accBarBlock");
+let gasValveBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row3 .gasValveBlock");
+let gpsGyroBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row3 .gpsGyroBlock");
 let gyroscopeRollBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .roll .title");
 let gyroscopePitchBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .pitch .title");
 let gyroscopeYawBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .yaw .title");
@@ -207,28 +211,65 @@ function updateDataDash(element, value){
     switch (element) {
         case "battery": //value: [1[vOut,aOut,warning],2[vOut,aOut,warning]]
             batteryBlock.innerHTML = "<a style='font-weight: bold;'>Battery 1 (Arduino in):</a>";
-            batteryBlock.innerHTML += "out voltage: " + value[0][0] + "V<br>";
-            batteryBlock.innerHTML += "out current: " + value[0][1] + "A<br>";
+            batteryBlock.innerHTML += "out voltage: " + value[0][0] + " V<br>";
+            batteryBlock.innerHTML += "out current: " + value[0][1] + " A<br>";
             batteryBlock.innerHTML += "warning: " + value[0][2] + "<br>";
             batteryBlock.innerHTML += "<a style='font-weight: bold;'>Battery 2 (PCB in):</a>";
-            batteryBlock.innerHTML += "out voltage: " + value[0][0] + "V<br>";
-            batteryBlock.innerHTML += "out current: " + value[0][1] + "A<br>";
-            batteryBlock.innerHTML += "warning: " + value[0][2] + "<br>";
+            batteryBlock.innerHTML += "out voltage: " + value[1][0] + " V<br>";
+            batteryBlock.innerHTML += "out current: " + value[1][1] + " A<br>";
+            batteryBlock.innerHTML += "warning: " + value[1][2] + "<br>";
             break;
         case "airpumpParachuteservo": //value: [p[vIn,warning],s[vIn,rotation,warning]]
             airParBlock.innerHTML = "<a style='font-weight: bold;'>Air pump:</a>";
-            airParBlock.innerHTML += "in voltage: " + value[0][0] + "V<br>";
+            airParBlock.innerHTML += "in voltage: " + value[0][0] + " V<br>";
             airParBlock.innerHTML += "warning: " + value[0][1] + "<br>";
             airParBlock.innerHTML += "<a style='font-weight: bold;'>Parachute servo:</a>";
-            airParBlock.innerHTML += "in voltage: " + value[1][0] + "V<br>";
-            airParBlock.innerHTML += "rotation: " + value[1][1] + "deg<br>";
+            airParBlock.innerHTML += "in voltage: " + value[1][0] + " V<br>";
+            airParBlock.innerHTML += "rotation: " + value[1][1] + " deg<br>";
             airParBlock.innerHTML += "status: " + ((value[1][1] > 0) ? "open" : "closed") + "<br>";
             airParBlock.innerHTML += "warning: " + value[1][2] + "<br>";
             break;
-        case "gyroscope": //value: [x,y,z]
-            gyroscopeRollBlockTitle.innerHTML = "<b>Roll:</b> " + value[0] + "deg";
-            gyroscopePitchBlockTitle.innerHTML = "<b>Pitch:</b> " + value[1] + "deg";
-            gyroscopeYawBlockTitle.innerHTML = "<b>Yaw:</b> " + value[2] + "deg";
+        case "gasValve": //value: [vIn,steps,rotation,status,temp,warning]
+            gasValveBlock.innerHTML = "<a style='font-weight: bold;'>Gas valve:</a>";
+            gasValveBlock.innerHTML += "in voltage: " + value[0] + " V<br>";
+            gasValveBlock.innerHTML += "steps: " + value[1] + "<br>";
+            gasValveBlock.innerHTML += "rotation: " + value[2] + " deg<br>";
+            gasValveBlock.innerHTML += "status: " + value[3] + " %<br>";
+            gasValveBlock.innerHTML += "temperature: " + value[4] + " C<br>";
+            gasValveBlock.innerHTML += "warning: " + value[5] + "<br>";
+            break;
+        case "temperatureHumidity": //value: [t[current,max,min],h[current,max,min]]
+            tempHumBlock.innerHTML = "<a style='font-weight: bold;'>Temperature:</a>";
+            tempHumBlock.innerHTML += "current temperature: " + value[0][0] + " C<br>";
+            tempHumBlock.innerHTML += "max temperature: " + value[0][1] + " C<br>";
+            tempHumBlock.innerHTML += "lowest temperature: " + value[0][2] + " C<br>";
+            tempHumBlock.innerHTML += "<a style='font-weight: bold;'>Humidity:</a>";
+            tempHumBlock.innerHTML += "current humidity: " + value[1][0] + " %<br>";
+            tempHumBlock.innerHTML += "max humidity: " + value[1][1] + " %<br>";
+            tempHumBlock.innerHTML += "lowest humidity: " + value[1][2] + " %<br>";
+            break;
+        case "accelerometerBarometer": //value: [a[x,y,z],b[pressure,altitudeS,altitudeG]]
+            accBarBlock.innerHTML = "<a style='font-weight: bold;'>Accelerometer:</a>";
+            accBarBlock.innerHTML += "x: " + value[0][0] + " m/s^2<br>";
+            accBarBlock.innerHTML += "y: " + value[0][1] + " m/s^2<br>";
+            accBarBlock.innerHTML += "z: " + value[0][2] + " m/s^2<br>";
+            accBarBlock.innerHTML += "<a style='font-weight: bold;'>Barometer:</a>";
+            accBarBlock.innerHTML += "pressure: " + value[1][0] + " Pa<br>";
+            accBarBlock.innerHTML += "altitude (sea): " + value[1][1] + " m<br>";
+            accBarBlock.innerHTML += "altitude (ground): " + value[1][2] + " m<br>";
+            break;
+        case "gpsGyroscope": //value: [g[satellites,dd1,dd2,dms1_1,dms1_2,dms2_1,dms2_2],g[x,y,z]]
+            gpsGyroBlock.innerHTML = "<a style='font-weight: bold;'>GPS: (" + value[0][0] + " satellites)</a>";
+            gpsGyroBlock.innerHTML += "DD: " + value[0][1] + "deg, " + value[0][2] + " deg<br>";
+            gpsGyroBlock.innerHTML += "DMS (" + value[0][3] + "): " + value[0][4] + "<br>";
+            gpsGyroBlock.innerHTML += "DMS (" + value[0][5] + "): " + value[0][6] + "<br>";
+            gyroscopeRollBlockTitle.innerHTML = "<b>Roll:</b> " + value[1][0] + " deg";
+            gyroscopePitchBlockTitle.innerHTML = "<b>Pitch:</b> " + value[1][1] + " deg";
+            gyroscopeYawBlockTitle.innerHTML = "<b>Yaw:</b> " + value[1][2] + " deg";
+            gpsGyroBlock.innerHTML += "<a style='font-weight: bold;'>Gyroscope:</a>";
+            gpsGyroBlock.innerHTML += "x: " + value[1][0] + " deg<br>";
+            gpsGyroBlock.innerHTML += "y: " + value[1][1] + " deg<br>";
+            gpsGyroBlock.innerHTML += "z: " + value[1][2] + " deg<br>";
             break;
         default:
 
@@ -236,8 +277,11 @@ function updateDataDash(element, value){
 }
 // default data
 updateDataDash("battery", [[0,0,"none"],[0,0,"none"]]);
+updateDataDash("temperatureHumidity", [[0,0,0],[0,0,0]]);
 updateDataDash("airpumpParachuteservo", [[0,"none"],[0,0,"none"]]);
-updateDataDash("gyroscope", [0, 0, 0]);
+updateDataDash("accelerometerBarometer", [[0,0,0],[0,0,0]]);
+updateDataDash("gasValve", [0, 0, 0, 0, 0, "none"]);
+updateDataDash("gpsGyroscope", [[0,0,"/","0° 0' 0”","/","0° 0' 0”"],[0,0,0]]);
 
 // logs (side menu)
 let logMainDiv = document.querySelector(".rightMenu .logs");
@@ -254,9 +298,6 @@ setInterval(() => {logMainDiv.scrollTo(0, logMainDiv.scrollHeight);}, 100);
 // websocket
 let connectionStateOut = document.getElementById("connectionStateOut");
 
-let websocketString = "";
-let oldWebsocketString = "";
-let newMessagesInDb = false;
 const websocket = new WebSocket("ws://" + document.location.host + "/dashboardWs");
 
 websocket.onopen = (event) => {
@@ -271,6 +312,11 @@ websocket.onerror = (event) => {
     newLog("Error in websocket connection");
 }
 
+let websocketString = "";
+let oldWebsocketString = "";
+let websocketStringParsed = "";
+let barometerData = [];
+let newMessagesInDb = false;
 websocket.onmessage = (event) => {
     connectionStateOut.style.background = "yellow";
 
@@ -289,6 +335,19 @@ websocket.onmessage = (event) => {
         newMessagesInDb = true;
         setTimeout(()=>{connectionStateOut.style.background = "green";}, 60);
     }
+
+    websocketStringParsed = websocketString.split(",");
+
+    barometerData = [websocketStringParsed[11]];
+    barometerData.push(websocketStringParsed[12].split("%")[7]);
+    barometerData.push(213.4);
+
+    updateDataDash("battery", [websocketStringParsed[3].split("%"),websocketStringParsed[4].split("%")]);
+    updateDataDash("temperatureHumidity", [websocketStringParsed[8].split("%"),websocketStringParsed[9].split("%")]);
+    updateDataDash("airpumpParachuteservo", [websocketStringParsed[5].split("%"),websocketStringParsed[6].split("%")]);
+    updateDataDash("accelerometerBarometer", [websocketStringParsed[10].split("%"),barometerData]);
+    updateDataDash("gasValve", websocketStringParsed[7].split("%"));
+    updateDataDash("gpsGyroscope", [websocketStringParsed[12].split("%"),websocketStringParsed[13].split("%")]);
 
     oldWebsocketString = websocketString;
 }

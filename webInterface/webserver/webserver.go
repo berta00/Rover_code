@@ -5,6 +5,7 @@ import (
     "database/sql"
     "net/http"
     "os/exec"
+    "strconv"
     "time"
     "fmt"
     "os"
@@ -21,9 +22,9 @@ var dbPort             = os.Getenv("MYSQL_PORT")
 var dbNameWeb          = os.Getenv("MYSQL_DB_WEB")
 var dbNameData         = os.Getenv("MYSQL_DB_DATA")
 var dbTableUser        = os.Getenv("MYSQL_TB_USER")
-var dbTableActuatorOut = os.Getenv("MYSQL_TB_ACT_OUT")/*
-var dbTableActuatorIn  = os.Getenv("MYSQL_TB_ACT_IN")
-var dbTableSensorOut   = os.Getenv("MYSQL_TB_SEN_OUT")*/
+var dbTableActuatorOut = os.Getenv("MYSQL_TB_ACT_OUT")
+var dbTableSensorOut   = os.Getenv("MYSQL_TB_SEN_OUT")/*
+var dbTableActuatorIn  = os.Getenv("MYSQL_TB_ACT_IN")*/
 
 // global variables
 var domainName       = "http://127.0.0.1"
@@ -43,15 +44,27 @@ type userTableQuery struct {
     Email    string
     Password string
 }
+type sensorDataOutTableQuery struct {
+    Id              string
+    DataTime        string
+    SensorFailures  string
+    Temperature     string
+    Humidity        string
+    Accelerometer   string
+    Barometer       string
+    Gps             string
+    Gyroscope       string
+}
 type actuatorDataOutTableQuery struct {
     Id              string
     DataTime        string
     Status          string
     Warning         string
-    Emergency       string
-    GasValveStatus  string
-    PumpStatus      string
-    ParachuteStatus string
+    Battery1        string
+    Battery2        string
+    AirPump         string
+    GasValve        string
+    ParachuteServo  string
 }
 
 // html pages structures
@@ -178,35 +191,77 @@ func writer(conn *websocket.Conn){
         fmt.Println("Error: Cant connect to data database\n - " + err.Error())
     }
 
+    sensorOutQueryString := "SELECT * FROM " + dbTableSensorOut + " WHERE id=(SELECT MAX(id) FROM " + dbTableSensorOut + ");"
     actuatorOutQueryString := "SELECT * FROM " + dbTableActuatorOut + " WHERE id=(SELECT MAX(id) FROM " + dbTableActuatorOut + ");"
+
+    webInterfaceDataString := "";
+
+    maxTemp := 0.0
+    minTemp := 999.0
+    maxHum := 0.0
+    minHum := 999.0
 
     ticket := time.NewTicker(2 * time.Second)
     for range ticket.C {
-        actuatorOutQuery, err := dbDataConn.Query(actuatorOutQueryString);
-        if err != nil {
-            fmt.Println("Error: Cant query the actoruatorOut table\n - " + err.Error())
-        }
+        actuatorOutQuery, err1 := dbDataConn.Query(actuatorOutQueryString);
+        sensorOutQuery, err2 := dbDataConn.Query(sensorOutQueryString);
+        if err1 != nil { fmt.Println("Error: Cant query the actoruatorOut table\n - " + err1.Error()) }
+        if err2 != nil { fmt.Println("Error: Cant query the actoruatorOut table\n - " + err2.Error()) }
 
         actuatorOutQueryOut := new(actuatorDataOutTableQuery)
         for actuatorOutQuery.Next(){
-            err := actuatorOutQuery.Scan(
+            err1 := actuatorOutQuery.Scan(
                 &actuatorOutQueryOut.Id,
                 &actuatorOutQueryOut.DataTime,
                 &actuatorOutQueryOut.Status,
                 &actuatorOutQueryOut.Warning,
-                &actuatorOutQueryOut.Emergency,
-                &actuatorOutQueryOut.GasValveStatus,
-                &actuatorOutQueryOut.PumpStatus,
-                &actuatorOutQueryOut.ParachuteStatus,
+                &actuatorOutQueryOut.Battery1,
+                &actuatorOutQueryOut.Battery2,
+                &actuatorOutQueryOut.AirPump,
+                &actuatorOutQueryOut.ParachuteServo,
+                &actuatorOutQueryOut.GasValve,
             )
-            if err != nil {
-                fmt.Println("Error: Cant scan the query from user table\n - " + err.Error())
+            if err1 != nil {
+                fmt.Println("Error: Cant scan the query from actoruatorOut table\n - " + err1.Error())
             }
         }
 
-        actuatorOutQueryOutString := actuatorOutQueryOut.Id + "," + actuatorOutQueryOut.DataTime + "," + actuatorOutQueryOut.Status + "," + actuatorOutQueryOut.Warning + "," + actuatorOutQueryOut.Emergency + "," + actuatorOutQueryOut.GasValveStatus + "," + actuatorOutQueryOut.PumpStatus + "," + actuatorOutQueryOut.ParachuteStatus
+        sensorOutQueryOut := new(sensorDataOutTableQuery)
+        for sensorOutQuery.Next(){
+            err2 := sensorOutQuery.Scan(
+                &sensorOutQueryOut.Id,
+                &sensorOutQueryOut.DataTime,
+                &sensorOutQueryOut.SensorFailures,
+                &sensorOutQueryOut.Temperature,
+                &sensorOutQueryOut.Humidity,
+                &sensorOutQueryOut.Accelerometer,
+                &sensorOutQueryOut.Barometer,
+                &sensorOutQueryOut.Gps,
+                &sensorOutQueryOut.Gyroscope,
+            )
+            if err2 != nil {
+                fmt.Println("Error: Cant scan the query from sensorOut table\n - " + err2.Error())
+            }
+        }
 
-        if err := conn.WriteMessage(websocket.TextMessage, []byte(actuatorOutQueryOutString)); err != nil {
+        curTemp, _ := strconv.ParseFloat(sensorOutQueryOut.Temperature, 8)
+        curHum, _ := strconv.ParseFloat(sensorOutQueryOut.Humidity, 8)
+
+        if(curTemp > maxTemp){
+            maxTemp = curTemp
+        } else if(curTemp < minTemp){
+            minTemp = curTemp
+        }
+        if(curHum > maxHum){
+            maxHum = curHum
+        } else if(curHum < minHum){
+            minHum = curHum
+        }
+
+        webInterfaceDataString = actuatorOutQueryOut.DataTime + "," + actuatorOutQueryOut.Status + "," + actuatorOutQueryOut.Warning + "," + actuatorOutQueryOut.Battery1 + "," + actuatorOutQueryOut.Battery2 + "," + actuatorOutQueryOut.AirPump + "," + actuatorOutQueryOut.ParachuteServo + "," + actuatorOutQueryOut.GasValve
+        webInterfaceDataString += "," + fmt.Sprintf("%v",curTemp) + "%" + fmt.Sprintf("%v",maxTemp) + "%" + fmt.Sprintf("%v",minTemp) + "," + fmt.Sprintf("%v",curHum) + "%" + fmt.Sprintf("%v",maxHum) + "%" + fmt.Sprintf("%v",minHum) + "," + sensorOutQueryOut.Accelerometer + "," + sensorOutQueryOut.Barometer + "," + sensorOutQueryOut.Gps + "," + sensorOutQueryOut.Gyroscope
+
+        if err := conn.WriteMessage(websocket.TextMessage, []byte(webInterfaceDataString)); err != nil {
             fmt.Println("Error: Cant write message in websocket\n - " + err.Error())
             return
         }
