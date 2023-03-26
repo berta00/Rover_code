@@ -204,6 +204,7 @@ let airParBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .r
 let accBarBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row2 .accBarBlock");
 let gasValveBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row3 .gasValveBlock");
 let gpsGyroBlock = document.querySelector(".main .img3Div .dataMain .leftBlock .row3 .gpsGyroBlock");
+let gpsMapIframe = document.querySelector(".main .img3Div .dataMain .rightBlock .map .gmapsIframe");
 let gyroscopeRollBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .roll .title");
 let gyroscopePitchBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .pitch .title");
 let gyroscopeYawBlockTitle = document.querySelector(".main .img3Div .dataMain .rightBlock .gyroscope .yaw .title");
@@ -260,9 +261,9 @@ function updateDataDash(element, value){
             break;
         case "gpsGyroscope": //value: [g[satellites,dd1,dd2,dms1_1,dms1_2,dms2_1,dms2_2],g[x,y,z]]
             gpsGyroBlock.innerHTML = "<a style='font-weight: bold;'>GPS: (" + value[0][0] + " satellites)</a>";
-            gpsGyroBlock.innerHTML += "DD: " + value[0][1] + "deg, " + value[0][2] + " deg<br>";
-            gpsGyroBlock.innerHTML += "DMS (" + value[0][3] + "): " + value[0][4] + "<br>";
-            gpsGyroBlock.innerHTML += "DMS (" + value[0][5] + "): " + value[0][6] + "<br>";
+            gpsGyroBlock.innerHTML += "DD: " + value[0][1] + " deg, " + value[0][2] + " deg<br>";
+            gpsGyroBlock.innerHTML += "DMS (" + value[0][3] + "): " + value[0][4] + "\"<br>";
+            gpsGyroBlock.innerHTML += "DMS (" + value[0][5] + "): " + value[0][6] + "\"<br>";
             gyroscopeRollBlockTitle.innerHTML = "<b>Roll:</b> " + value[1][0] + " deg";
             gyroscopePitchBlockTitle.innerHTML = "<b>Pitch:</b> " + value[1][1] + " deg";
             gyroscopeYawBlockTitle.innerHTML = "<b>Yaw:</b> " + value[1][2] + " deg";
@@ -270,6 +271,7 @@ function updateDataDash(element, value){
             gpsGyroBlock.innerHTML += "x: " + value[1][0] + " deg<br>";
             gpsGyroBlock.innerHTML += "y: " + value[1][1] + " deg<br>";
             gpsGyroBlock.innerHTML += "z: " + value[1][2] + " deg<br>";
+            let center = value[0][1] + "," + value[0][2];
             break;
         default:
 
@@ -317,6 +319,7 @@ let oldWebsocketString = "";
 let websocketStringParsed = "";
 let barometerData = [];
 let newMessagesInDb = false;
+let firstData = true;
 websocket.onmessage = (event) => {
     connectionStateOut.style.background = "yellow";
 
@@ -338,16 +341,21 @@ websocket.onmessage = (event) => {
 
     websocketStringParsed = websocketString.split(",");
 
-    barometerData = [websocketStringParsed[11]];
-    barometerData.push(websocketStringParsed[12].split("%")[7]);
-    barometerData.push(213.4);
+    if(firstData){
+        gpsMapIframe.src = "https://maps.google.com/maps?q=" + websocketStringParsed[12].split("%")[1] + ",%20" + websocketStringParsed[12].split("%")[2] + "&amp;t=k&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed&output=embed";
+        firstData = false;
+    } else {
+        barometerData = [websocketStringParsed[11]];
+        barometerData.push(websocketStringParsed[12].split("%")[7]);
+        barometerData.push(213.4);
 
-    updateDataDash("battery", [websocketStringParsed[3].split("%"),websocketStringParsed[4].split("%")]);
-    updateDataDash("temperatureHumidity", [websocketStringParsed[8].split("%"),websocketStringParsed[9].split("%")]);
-    updateDataDash("airpumpParachuteservo", [websocketStringParsed[5].split("%"),websocketStringParsed[6].split("%")]);
-    updateDataDash("accelerometerBarometer", [websocketStringParsed[10].split("%"),barometerData]);
-    updateDataDash("gasValve", websocketStringParsed[7].split("%"));
-    updateDataDash("gpsGyroscope", [websocketStringParsed[12].split("%"),websocketStringParsed[13].split("%")]);
+        updateDataDash("battery", [websocketStringParsed[3].split("%"),websocketStringParsed[4].split("%")]);
+        updateDataDash("temperatureHumidity", [websocketStringParsed[8].split("%"),websocketStringParsed[9].split("%")]);
+        updateDataDash("airpumpParachuteservo", [websocketStringParsed[5].split("%"),websocketStringParsed[6].split("%")]);
+        updateDataDash("accelerometerBarometer", [websocketStringParsed[10].split("%"),barometerData]);
+        updateDataDash("gasValve", websocketStringParsed[7].split("%"));
+        updateDataDash("gpsGyroscope", [websocketStringParsed[12].split("%"),websocketStringParsed[13].split("%")]);
+    }
 
     oldWebsocketString = websocketString;
 }

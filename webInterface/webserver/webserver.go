@@ -201,7 +201,7 @@ func writer(conn *websocket.Conn){
     maxHum := 0.0
     minHum := 999.0
 
-    ticket := time.NewTicker(2 * time.Second)
+    ticket := time.NewTicker(1 * time.Second)
     for range ticket.C {
         actuatorOutQuery, err1 := dbDataConn.Query(actuatorOutQueryString);
         sensorOutQuery, err2 := dbDataConn.Query(sensorOutQueryString);

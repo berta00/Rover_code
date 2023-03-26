@@ -247,7 +247,6 @@ body {
     padding-bottom: 12px;
     padding-left: 16px;
     padding-right: 16px;
-    overflow: scroll;
 }
 .main .img3Div .dataMain .rightBlock .gyroscope {
     height: calc(100% / 3 - 6px * 2);
