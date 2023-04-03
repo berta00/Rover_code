@@ -4,9 +4,12 @@
 #include <SPI.h>
 #include <RF24.h>
 
-#include <Servo.h>
-
 #include <DHT.h>
+
+#include <SoftwareSerial.h>
+#include <TinyGPS++.h>
+
+#include <Adafruit_BMP085.h>
 
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
@@ -25,24 +28,24 @@ int pinStepperINT1 = 9;
 int pinStepperINT2 = 10;
 int pinStepperINT3 = 11;
 int pinStepperINT4 = 12;
-int pinAirPump = 13;
+int pinAirPump = 49;
 int pinParachuteServo = 22;
 int pinAntennaMISO = 50;
 int pinAntennaMOSI = 51;
 int pinAntennaSCK = 52;
 int pinAntennaSS = 53;
-int pinAccelerometerSCL = 0;
-int pinAccelerometerSDA = 1;
-int pinBarometerSCL = 2;
-int pinBarometerSDA = 3;
-int pinBattery1V = 4;
-int pinBattery2V = 5;
-int pinStepperV = 6;
-int pinServoV = 7;
-int pinAirPumpV = 8;
+int pinBarometerSCL = 21;
+int pinBarometerSDA = 22;
+int pinAccelerometerSCL = A0;
+int pinAccelerometerSDA = A1;
+int pinBattery1V = A4;
+int pinBattery2V = A5;
+int pinStepperV = A6;
+int pinServoV = A7;
+int pinAirPumpV = A8;
 
 // antenna variables and object
-RF24 radio(7, 8);
+RF24 radio(pinAntennaCE, pinAntennaCNS);
 byte node_A_address[6] = "NodeA";
 byte node_B_address[6] = "NodeB";
 
@@ -55,7 +58,7 @@ char sensorDataString[32] = "";
 // actuator variables
 int currentDataIntegrity;
 int currentMotor;
-int currentAirPump;
+boolean airPumpEnable = false;
 int currentParachute;
 
 // sensorValiables
@@ -63,30 +66,66 @@ float currentTemperature;
 char currentTemperatureS[32];
 float currentHumidity;
 char currentHumidityS[32];
+double currentCoordinatesLat;
+char currentCoordinatesLatS[12];
+double currentCoordinatesLng;
+char currentCoordinatesLngS[12];
+int currentSatelitesNumber;
+char currentSatelitesNumberS[8];
+int currentSpeed;
+char currentSpeedS[12];
+int currentSeaAltitude;
+int currentGroundAltitude;
+int currentRelativeAltitude;
+char currentGroundAltitudeS[12];
 char currentCoordinatesS[32];
+int currentPressure;
+int currentAltitude;
 char currentBarometerS[32];
-char currentAirpumpS[32];
+char currentXAccelerationS[8];
+char currentYAccelerationS[8];
+char currentZAccelerationS[8];
 char currentAccelerometerS[32];
-char currentStepperS[32];
-char currentParachuteS[32];
-char currentStepperVS[32];
-char currentServoVS[32];
-char currentAirPumpVS[32];
+char currentXGyroscopeS[8];
+char currentYGyroscopeS[8];
+char currentZGyroscopeS[8];
+char currentGyroscopeS[32];
+char battery1S[12];
+char battery2S[12];
+char currentAirpumpS[32];
+char currentParachuteServoS[32];
+char currentGasValveS[32];
 
 // temperature humidity object
 DHT dht(pinTemperatureHumidity, DHT11);
+// gps object
+SoftwareSerial gpsSerial(pinGpsRX, pinGpsTX);
+TinyGPSPlus gpsParser;
+// barometer object
+Adafruit_BMP085 barometer;
+// accelerometer gyroscope object
+Adafruit_MPU6050 accGyro;
 
 void setup() {
   // serial setup
-  Serial.begin(9600);
+  Serial.begin(115200);
   // antenna setup
   radio.begin();
-  radio.setPALevel(RF24_PA_LOW); //RF24_PA_MAX 
+  radio.setPALevel(RF24_PA_MAX); //RF24_PA_MAX  RF24_PA_LOW
   radio.openWritingPipe(node_A_address);
   radio.openReadingPipe(1, node_B_address);
   radio.startListening();
   // temperature humidity setup
   dht.begin();
+  // barometer setup
+  barometer.begin();
+  // accelerometer gyroscope scope
+  accGyro.begin();
+  accGyro.setAccelerometerRange(MPU6050_RANGE_8_G);
+  accGyro.setGyroRange(MPU6050_RANGE_500_DEG);
+  accGyro.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  // air pump setup
+  pinMode(pinAirPump, OUTPUT);
 }
 
 void loop() {
@@ -96,47 +135,141 @@ void loop() {
   dtostrf(currentTemperature,3, 2, currentTemperatureS);
   dtostrf(currentHumidity, 3, 2, currentHumidityS);
 
-  // asign data to array for stansmition
-/*strcpy(sensorsData[0], "101");
-  strcpy(sensorsData[1], currentTemperatureS);
-  strcpy(sensorsData[2], currentHumidityS);
-  strcpy(sensorsData[3], currentCoordinatesS);
-  strcpy(sensorsData[4], currentBarometerS);
-  strcpy(sensorsData[5], currentAirpumpS);
-  strcpy(sensorsData[6], currentAccelerometerS);
-  strcpy(sensorsData[7], currentStepperS);
-  strcpy(sensorsData[8], currentParachuteS);
-  strcpy(sensorsData[9], currentStepperVS);
-  strcpy(sensorsData[10], currentServoVS);
-  strcpy(sensorsData[11], currentAirPumpVS);*/
+  // gps
+  if(gpsSerial.available() > 0){
+    gpsParser.encode(gpsSerial.read());
+    currentCoordinatesLat = gpsParser.location.lat();
+    currentCoordinatesLng = gpsParser.location.lng();
+    currentGroundAltitude = gpsParser.altitude.meters();
+    currentSatelitesNumber = gpsParser.satellites.value();
+    currentSpeed = gpsParser.speed.kmph();
+    dtostrf(currentCoordinatesLat, 3, 6, currentCoordinatesLatS);
+    dtostrf(currentCoordinatesLng, 3, 6, currentCoordinatesLngS);
+    dtostrf(currentGroundAltitude, 3, 2, currentGroundAltitudeS);
+    dtostrf(currentSatelitesNumber, 3, 0, currentSatelitesNumberS);
+    dtostrf(currentSpeed, 3, 1, currentSpeedS);
+    strcpy(currentCoordinatesS, "");
+    strcat(currentCoordinatesS, currentSatelitesNumberS);
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, currentCoordinatesLatS);
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, currentCoordinatesLngS);
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, currentSpeed);
+    strcat(currentCoordinatesS, "%");
+    strcat(currentCoordinatesS, currentGroundAltitudeS);
+  } else {
+    strcpy(currentCoordinatesS, "");
+    strcat(currentCoordinatesS, "disconnected");
+  }
 
+  // barometer
+  currentPressure = barometer.readPressure();
+  currentSeaAltitude = barometer.readAltitude();
+  currentRelativeAltitude = currentSeaAltitude - currentGroundAltitude;
+  strcpy(currentBarometerS, "");
+  strcat(currentBarometerS, currentPressure);
+  strcat(currentBarometerS, "%");
+  strcat(currentBarometerS, currentSeaAltitude);
+  strcat(currentBarometerS, "%");
+  strcat(currentBarometerS, currentRelativeAltitude);
+
+  // accelerometer gyroscope
+  sensors_event_t accelerometer, gyroscope, temp;
+  accGyro.getEvent(&accelerometer, &gyroscope, &temp);
+  float currentXAcceleration = accelerometer.acceleration.x;
+  float currentYAcceleration = accelerometer.acceleration.y;
+  float currentZAcceleration = accelerometer.acceleration.z;
+  dtostrf(currentXAcceleration, 3, 2, currentXAccelerationS);
+  dtostrf(currentYAcceleration, 3, 2, currentYAccelerationS);
+  dtostrf(currentZAcceleration, 3, 2, currentZAccelerationS);
+  strcpy(currentAccelerometerS, "");
+  strcat(currentAccelerometerS, currentXAccelerationS);
+  strcat(currentAccelerometerS, "%");
+  strcat(currentAccelerometerS, currentYAccelerationS);
+  strcat(currentAccelerometerS, "%");
+  strcat(currentAccelerometerS, currentZAccelerationS);
+  float currentXGyroscope = gyroscope.gyro.x;
+  float currentYGyroscope = gyroscope.gyro.y;
+  float currentZGyroscope = gyroscope.gyro.z;
+  dtostrf(currentXGyroscope, 3, 2, currentXGyroscopeS);
+  dtostrf(currentYGyroscope, 3, 2, currentYGyroscopeS);
+  dtostrf(currentZGyroscope, 3, 2, currentZGyroscopeS);
+  strcpy(currentGyroscopeS, "");
+  strcat(currentGyroscopeS, currentXGyroscopeS);
+  strcat(currentGyroscopeS, "%");
+  strcat(currentGyroscopeS, currentYGyroscopeS);
+  strcat(currentGyroscopeS, "%");
+  strcat(currentGyroscopeS, currentZGyroscopeS);
+/*
+  // battery1
+  strcpy(battery1S, "");
+  strcat(battery1S, "none");
+  strcat(battery1S, "%");
+  strcat(battery1S, "0.0");
+  strcat(battery1S, "%");
+  strcat(battery1S, "0.0");
+
+  // battery2
+  strcpy(battery2S, "");
+  strcat(battery2S, "none");
+  strcat(battery2S, "%");
+  strcat(battery2S, "0.0");
+  strcat(battery2S, "%");
+  strcat(battery2S, "0.0");
+
+  // air pump
+  airPumpEnable = false;
+  if(airPumpEnable){
+    digitalWrite(pinAirPump, HIGH);
+  } else {
+    digitalWrite(pinAirPump, LOW);
+  }
+
+  float airPumpVin = (float)analogRead(pinAirPumpV) * 5.0 / 1023.0;
+  char airPumpVinS[8];
+  dtostrf(airPumpVin, 2, 2, airPumpVinS);
+  strcpy(currentAirpumpS, "");
+  strcat(currentAirpumpS, "none");
+  strcat(currentAirpumpS, "%");
+  strcat(currentAirpumpS, airPumpVinS);
+
+  // parachute servo
+*/
+  // asign data to array for stansmition
   strcpy(sensorDataString, "");
+  strcat(sensorDataString, "none");
+  strcat(sensorDataString, ",");
   strcat(sensorDataString, currentTemperatureS);
   strcat(sensorDataString, ",");
   strcat(sensorDataString, currentHumidityS);
-  strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentCoordinatesS);
-  strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentBarometerS);
-  strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentAirpumpS);
+
   strcat(sensorDataString, ",");
   strcat(sensorDataString, currentAccelerometerS);
   strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentStepperS);
+  strcat(sensorDataString, currentBarometerS);
   strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentParachuteS);
+  strcat(sensorDataString, currentCoordinatesS);
+
   strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentStepperVS);
+  strcat(sensorDataString, currentGyroscopeS);
   strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentServoVS);
+  strcat(sensorDataString, battery1S);
   strcat(sensorDataString, ",");
-  strcat(sensorDataString, currentAirPumpVS);
-  
-  Serial.println(sensorDataString);
+  strcat(sensorDataString, battery2S);
+  strcat(sensorDataString, ",");
+  strcat(sensorDataString, currentAirpumpS);
+  strcat(sensorDataString, ",");
+  strcat(sensorDataString, currentParachuteServoS);
+  strcat(sensorDataString, ",");
+  strcat(sensorDataString, currentGasValveS);
 
   // antenna comunication
-  if (radio.available()){
+  if(radio.available()){
     while (radio.available()) {
       radio.read(&actuatorsData, sizeof(actuatorsData));
     }
@@ -145,9 +278,8 @@ void loop() {
 
     radio.write(&sensorDataString, sizeof(sensorDataString));
     radio.startListening();
-
-    Serial.println(actuatorsData[0]);
   }
+  delay(20);
 
-  delay(100);
+  Serial.println(currentGyroscopeS);
 }

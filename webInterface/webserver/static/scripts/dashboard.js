@@ -230,14 +230,16 @@ function updateDataDash(element, value){
             airParBlock.innerHTML += "status: " + ((value[1][1] > 0) ? "open" : "closed") + "<br>";
             airParBlock.innerHTML += "warning: " + value[1][2] + "<br>";
             break;
-        case "gasValve": //value: [vIn,steps,rotation,status,temp,warning]
+        case "gasValveSpeed": //value: [G[vIn,steps,rotation,status,warning],G[satellites,dd1,dd2,dms1_1,dms1_2,dms2_1,dms2_2,speed,altitude]]
             gasValveBlock.innerHTML = "<a style='font-weight: bold;'>Gas valve:</a>";
-            gasValveBlock.innerHTML += "in voltage: " + value[0] + " V<br>";
-            gasValveBlock.innerHTML += "steps: " + value[1] + "<br>";
-            gasValveBlock.innerHTML += "rotation: " + value[2] + " deg<br>";
-            gasValveBlock.innerHTML += "status: " + value[3] + " %<br>";
-            gasValveBlock.innerHTML += "temperature: " + value[4] + " C<br>";
-            gasValveBlock.innerHTML += "warning: " + value[5] + "<br>";
+            gasValveBlock.innerHTML += "in voltage: " + value[0][0] + " V<br>";
+            gasValveBlock.innerHTML += "steps: " + value[0][1] + "<br>";
+            gasValveBlock.innerHTML += "rotation: " + value[0][2] + " deg<br>";
+            gasValveBlock.innerHTML += "status: " + value[0][3] + " %<br>";
+            gasValveBlock.innerHTML += "warning: " + value[0][5] + "<br>";
+            gasValveBlock.innerHTML = "<a style='font-weight: bold;'>General:</a>";
+            gasValveBlock.innerHTML += "speed: " + value[1][7] + " %<br>";
+            gasValveBlock.innerHTML += "altitude: " + value[1][8] + "<br>";
             break;
         case "temperatureHumidity": //value: [t[current,max,min],h[current,max,min]]
             tempHumBlock.innerHTML = "<a style='font-weight: bold;'>Temperature:</a>";
@@ -353,7 +355,7 @@ websocket.onmessage = (event) => {
         updateDataDash("temperatureHumidity", [websocketStringParsed[8].split("%"),websocketStringParsed[9].split("%")]);
         updateDataDash("airpumpParachuteservo", [websocketStringParsed[5].split("%"),websocketStringParsed[6].split("%")]);
         updateDataDash("accelerometerBarometer", [websocketStringParsed[10].split("%"),barometerData]);
-        updateDataDash("gasValve", websocketStringParsed[7].split("%"));
+        updateDataDash("gasValveSpeed", [websocketStringParsed[7].split("%"),websocketStringParsed[12].split("%")]);
         updateDataDash("gpsGyroscope", [websocketStringParsed[12].split("%"),websocketStringParsed[13].split("%")]);
     }
 

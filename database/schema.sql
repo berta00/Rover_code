@@ -19,10 +19,10 @@ CREATE TABLE BaloonSensorDataOut (
     id              int          auto_increment,
     dataTime        timestamp    default        current_timestamp,
     sensorFailures  varchar(255),
-    temperature     float,
-    humidity        float,
+    temperature     varchar(255),
+    humidity        varchar(255),
     accelerometer   varchar(255),
-    barometer       float,
+    barometer       varchar(255),
     gps             varchar(255),
     gyroscope       varchar(255),
     PRIMARY KEY (id)

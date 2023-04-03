@@ -10,6 +10,7 @@ import (
     "fmt"
     "os"
 
+    "github.com/jacobsa/go-serial/serial"
     _ "github.com/go-sql-driver/mysql"
     "github.com/gorilla/websocket"
 )
@@ -186,6 +187,7 @@ func upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error){
 }
 
 func writer(conn *websocket.Conn){
+/*
     dbDataConn, err := sql.Open("mysql", dbDataConnString)
     if err != nil {
         fmt.Println("Error: Cant connect to data database\n - " + err.Error())
@@ -201,7 +203,7 @@ func writer(conn *websocket.Conn){
     maxHum := 0.0
     minHum := 999.0
 
-    ticket := time.NewTicker(1 * time.Second)
+    ticket := time.NewTicker(150 * time.Millisecond)
     for range ticket.C {
         actuatorOutQuery, err1 := dbDataConn.Query(actuatorOutQueryString);
         sensorOutQuery, err2 := dbDataConn.Query(sensorOutQueryString);
@@ -262,6 +264,69 @@ func writer(conn *websocket.Conn){
         webInterfaceDataString += "," + fmt.Sprintf("%v",curTemp) + "%" + fmt.Sprintf("%v",maxTemp) + "%" + fmt.Sprintf("%v",minTemp) + "," + fmt.Sprintf("%v",curHum) + "%" + fmt.Sprintf("%v",maxHum) + "%" + fmt.Sprintf("%v",minHum) + "," + sensorOutQueryOut.Accelerometer + "," + sensorOutQueryOut.Barometer + "," + sensorOutQueryOut.Gps + "," + sensorOutQueryOut.Gyroscope
 
         if err := conn.WriteMessage(websocket.TextMessage, []byte(webInterfaceDataString)); err != nil {
+            fmt.Println("Error: Cant write message in websocket\n - " + err.Error())
+            return
+        }
+    }
+*/
+    dbDataConn, err := sql.Open("mysql", dbDataConnString)
+    if err != nil {
+        fmt.Println("Error: Cant connect to data database\n - " + err.Error())
+    }
+
+    sensorInQueryString := ""
+    actuatorInQueryString := ""
+    webInterfaceDataString := ""
+
+    maxTemp := 0.0
+    minTemp := 999.0
+    maxHum := 0.0
+    minHum := 999.0
+
+    options := serial.OpenOptions{
+        PortName:        "/dev/cu.usbmodem21201",
+        BaudRate:        9600,
+        DataBits:        8,
+        StopBits:        1,
+        MinimumReadSize: 4,
+    }
+    port, err := serial.Open(options)
+    if err != nil {
+        fmt.Println("Error: Cant open serial connection\n - " + err.Error())
+    }
+
+    ticket := time.NewTicker(150 * time.Millisecond)
+    for range ticket.C {
+        // get data from arduino
+        dataBuf := make([]byte, 100)
+        n, err := port.Read(dataBuf)
+        if err != nil {
+            fmt.Println("Error: Cant read serial comunication\n - " + err.Error())
+            fmt.Println(n)
+        }
+        // parse and correct data
+        parsedSensorData := strings.Split(sensorDataBuf, ",")
+
+        curTemp, _ := strconv.ParseFloat(parsedSensorData[1], 8)
+        curHum, _ := strconv.ParseFloat(parsedSensorData[2], 8)
+
+        if(curTemp > maxTemp){
+            maxTemp = curTemp
+        } else if(curTemp < minTemp){
+            minTemp = curTemp
+        }
+        if(curHum > maxHum){
+            maxHum = curHum
+        } else if(curHum < minHum){
+            minHum = curHum
+        }
+
+        warning := "none" // ceck for warnings
+
+        webInterfaceDataString = time.Now() + "," + parsedSensorData[0] + "," + warning + "," + parsedSensorData[7] + "," + parsedSensorData[8] + "," + parsedSensorData[9] + "," + parsedSensorData[10] + "," + parsedSensorData[11]
+        webInterfaceDataString += "," + fmt.Sprintf("%v",curTemp) + "%" + fmt.Sprintf("%v",maxTemp) + "%" + fmt.Sprintf("%v",minTemp) + "," + fmt.Sprintf("%v",curHum) + "%" + fmt.Sprintf("%v",maxHum) + "%" + fmt.Sprintf("%v",minHum) + "," + parsedSensorData[3] + "," + parsedSensorData[4] + "," + parsedSensorData[5] + "," + parsedSensorData[6]
+        // send data to websocket
+        if err := conn.WriteMessage(websocket.TextMessage, []byte(dataBuf)); err != nil {
             fmt.Println("Error: Cant write message in websocket\n - " + err.Error())
             return
         }

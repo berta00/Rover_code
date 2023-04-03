@@ -18,7 +18,7 @@ char sensorDataString[32] = "";
 void setup() {
   // antenna setup
   radio.begin();
-  radio.setPALevel(RF24_PA_LOW); //RF24_PA_MAX 
+  radio.setPALevel(RF24_PA_MAX); //RF24_PA_MAX  RF24_PA_LOW
   radio.openWritingPipe(node_B_address);
   radio.openReadingPipe(1, node_A_address);
   radio.startListening();
@@ -31,8 +31,8 @@ void loop() {
 
   // antenna comunication
   radio.stopListening();
-  
-  unsigned long start_time = micros();      
+
+  unsigned long start_time = micros();
   if (!radio.write(&actuatorsData, sizeof(actuatorsData))) {
     Serial.println(F("failed"));
   }
@@ -56,5 +56,5 @@ void loop() {
     unsigned long end_time = micros();
     Serial.println(sensorDataString);
   }
-  delay(100);
+  delay(20);
 }
