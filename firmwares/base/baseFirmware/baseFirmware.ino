@@ -12,8 +12,7 @@ byte node_B_address[6] = "NodeB";
 // motor, airPump, parachute
 int actuatorsData[12] = {101, 0, 0, 0};
 // temperature, humidity, gps, barometer, airPump, accelerometer, stepper,  parachute, stepperV, servoV, airPumpV
-char sensorsData[12][32] = {"", "", "", "", "", "", "", "",  "", "", "", ""};
-char sensorDataString[32] = "";
+char sensorDataString[64] = "";
 
 void setup() {
   // antenna setup

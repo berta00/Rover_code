@@ -52,8 +52,7 @@ byte node_B_address[6] = "NodeB";
 // motor, airPump, parachute
 int actuatorsData[12] = {0, 0, 0, 0};
 // temperature, humidity, gps, barometer, airPump, accelerometer, stepper,  parachute, stepperV, servoV, airPumpV
-char sensorsData[12][32] = {"101", "", "", "", "", "", "", "",  "", "", "", ""};
-char sensorDataString[32] = "";
+char sensorDataString[64] = "";
 
 // actuator variables
 int currentDataIntegrity;
@@ -65,7 +64,7 @@ int currentParachute;
 float currentTemperature;
 char currentTemperatureS[32];
 float currentHumidity;
-char currentHumidityS[32];
+char currentHumidityS[16];
 double currentCoordinatesLat;
 char currentCoordinatesLatS[12];
 double currentCoordinatesLng;
@@ -73,28 +72,28 @@ char currentCoordinatesLngS[12];
 int currentSatelitesNumber;
 char currentSatelitesNumberS[8];
 int currentSpeed;
-char currentSpeedS[12];
+char currentSpeedS[16];
 int currentSeaAltitude;
 int currentGroundAltitude;
 int currentRelativeAltitude;
-char currentGroundAltitudeS[12];
-char currentCoordinatesS[32];
+char currentGroundAltitudeS[16];
+char currentCoordinatesS[16];
 int currentPressure;
 int currentAltitude;
-char currentBarometerS[32];
+char currentBarometerS[16];
 char currentXAccelerationS[8];
 char currentYAccelerationS[8];
 char currentZAccelerationS[8];
-char currentAccelerometerS[32];
+char currentAccelerometerS[16];
 char currentXGyroscopeS[8];
 char currentYGyroscopeS[8];
 char currentZGyroscopeS[8];
-char currentGyroscopeS[32];
-char battery1S[12];
-char battery2S[12];
-char currentAirpumpS[32];
-char currentParachuteServoS[32];
-char currentGasValveS[32];
+char currentGyroscopeS[16];
+char battery1S[16];
+char battery2S[16];
+char currentAirpumpS[16];
+char currentParachuteServoS[16];
+char currentGasValveS[16];
 
 // temperature humidity object
 DHT dht(pinTemperatureHumidity, DHT11);
@@ -114,6 +113,7 @@ void setup() {
   radio.setPALevel(RF24_PA_MAX); //RF24_PA_MAX  RF24_PA_LOW
   radio.openWritingPipe(node_A_address);
   radio.openReadingPipe(1, node_B_address);
+  radio.setChannel(1);
   radio.startListening();
   // temperature humidity setup
   dht.begin();

@@ -5,13 +5,14 @@ import (
     "database/sql"
     "net/http"
     "os/exec"
+    "strings"
     "strconv"
     "time"
     "fmt"
     "os"
 
-    "github.com/jacobsa/go-serial/serial"
     _ "github.com/go-sql-driver/mysql"
+    "github.com/jacobsa/go-serial/serial"
     "github.com/gorilla/websocket"
 )
 
@@ -268,7 +269,7 @@ func writer(conn *websocket.Conn){
             return
         }
     }
-*/
+
     dbDataConn, err := sql.Open("mysql", dbDataConnString)
     if err != nil {
         fmt.Println("Error: Cant connect to data database\n - " + err.Error())
@@ -276,6 +277,7 @@ func writer(conn *websocket.Conn){
 
     sensorInQueryString := ""
     actuatorInQueryString := ""
+*/
     webInterfaceDataString := ""
 
     maxTemp := 0.0
@@ -298,14 +300,14 @@ func writer(conn *websocket.Conn){
     ticket := time.NewTicker(150 * time.Millisecond)
     for range ticket.C {
         // get data from arduino
-        dataBuf := make([]byte, 100)
-        n, err := port.Read(dataBuf)
+        sensorDataBuf := make([]byte, 100)
+        n, err := port.Read(sensorDataBuf)
         if err != nil {
             fmt.Println("Error: Cant read serial comunication\n - " + err.Error())
             fmt.Println(n)
         }
         // parse and correct data
-        parsedSensorData := strings.Split(sensorDataBuf, ",")
+        parsedSensorData := strings.Split(string(sensorDataBuf), ",")
 
         curTemp, _ := strconv.ParseFloat(parsedSensorData[1], 8)
         curHum, _ := strconv.ParseFloat(parsedSensorData[2], 8)
@@ -323,10 +325,10 @@ func writer(conn *websocket.Conn){
 
         warning := "none" // ceck for warnings
 
-        webInterfaceDataString = time.Now() + "," + parsedSensorData[0] + "," + warning + "," + parsedSensorData[7] + "," + parsedSensorData[8] + "," + parsedSensorData[9] + "," + parsedSensorData[10] + "," + parsedSensorData[11]
+        webInterfaceDataString = time.Now().Format("02-01-2006") + "," + parsedSensorData[0] + "," + warning + "," + parsedSensorData[7] + "," + parsedSensorData[8] + "," + parsedSensorData[9] + "," + parsedSensorData[10] + "," + parsedSensorData[11]
         webInterfaceDataString += "," + fmt.Sprintf("%v",curTemp) + "%" + fmt.Sprintf("%v",maxTemp) + "%" + fmt.Sprintf("%v",minTemp) + "," + fmt.Sprintf("%v",curHum) + "%" + fmt.Sprintf("%v",maxHum) + "%" + fmt.Sprintf("%v",minHum) + "," + parsedSensorData[3] + "," + parsedSensorData[4] + "," + parsedSensorData[5] + "," + parsedSensorData[6]
         // send data to websocket
-        if err := conn.WriteMessage(websocket.TextMessage, []byte(dataBuf)); err != nil {
+        if err := conn.WriteMessage(websocket.TextMessage, []byte(webInterfaceDataString)); err != nil {
             fmt.Println("Error: Cant write message in websocket\n - " + err.Error())
             return
         }
